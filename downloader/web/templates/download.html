@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Download Papers - Science Downloader</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Download Papers</h1>
+        
+        <!-- Progress Display -->
+        <div id="progressSection" style="display: none;">
+                <div id="progressText">Preparing download...</div>
+                <div id="progressStats"></div>
+            <div id="currentDoi" class="current-doi"></div>
+            <div id="outputFolderInfo" class="output-folder-info" style="display: none;"></div>
+            <div id="statusText" style="margin-top: 1rem; font-weight: 500;"></div>
+            
+            <!-- Stop Button -->
+            <button id="stopBtn" class="stop-btn">
+                <span id="stopBtnText">Stop</span>
+                <span id="stopSpinner" class="spinner" style="display: none;"></span>
+            </button>
+        </div>
+        
+        <!-- Manual file selection -->
+        <div class="option-section" id="uploadSection">
+            <p class="description">Upload a text file containing DOIs — one per line — and download the corresponding research papers automatically from the CORE database (90+ million open access papers).</p>
+            <div style="background: #e8f5e8; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                <strong>✅ CORE API Integration Active</strong><br>
+                This downloader now searches the world's largest open access aggregator. Papers are downloaded legally from institutional repositories, preprint servers, and open access journals worldwide.
+            </div>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <label for="doi_file">DOI file</label>
+                <input type="file" name="doi_file" id="doi_file" accept=".txt" required>
+                <div class="file-info">Text file with DOIs (one per line)</div>
+                
+                <label for="output_folder">Download folder</label>
+                <input type="text" name="output_folder" id="output_folder" value="/Users/matiasrodlo/Downloads/papers" placeholder="/Users/matiasrodlo/Downloads/papers">
+                <div class="file-info">Destination folder for PDF files</div>
+                
+                <button type="submit" id="uploadBtn">
+                    <span id="uploadBtnText">Search & Download from CORE</span>
+                    <span id="uploadSpinner" class="spinner" style="display: none;"></span>
+                </button>
+            </form>
+            
+            <div id="uploadResult" class="status" style="display: none;"></div>
+        </div>
+        
+        <a href="{{ url_for('main.index') }}" class="back-link">← Back to Home</a>
+    </div>
+
+    <script>
+        let progressInterval = null;
+        let isDownloading = false;
+
+        function startProgressTracking() {
+            if (progressInterval) clearInterval(progressInterval);
+            
+            const progressSection = document.getElementById('progressSection');
+            const uploadSection = document.getElementById('uploadSection');
+            
+            progressSection.style.display = 'block';
+            uploadSection.style.opacity = '0.5';
+            
+            isDownloading = true;
+            
+            progressInterval = setInterval(updateProgress, 1000); // Poll every second
+        }
+
+        function stopProgressTracking() {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+            
+            const progressSection = document.getElementById('progressSection');
+            const uploadSection = document.getElementById('uploadSection');
+            
+            uploadSection.style.opacity = '1';
+            
+            isDownloading = false;
+            
+            // Hide progress section after a delay
+            setTimeout(() => {
+                progressSection.style.display = 'none';
+            }, 2000);
+        }
+
+        function updateProgress() {
+            fetch('/download/progress')
+                .then(response => response.json())
+                .then(data => {
+                    const progressText = document.getElementById('progressText');
+                    const progressStats = document.getElementById('progressStats');
+                    const currentDoi = document.getElementById('currentDoi');
+                    const outputFolderInfo = document.getElementById('outputFolderInfo');
+                    const statusText = document.getElementById('statusText');
+
+                    if (data.status === 'idle' || data.status === 'stopped') {
+                        if (isDownloading) {
+                            if (data.status === 'stopped') {
+                                statusText.textContent = 'Stopped';
+                                statusText.style.display = 'block';
+                            } else {
+                                statusText.textContent = 'Complete';
+                                statusText.style.display = 'block';
+                            }
+                            stopProgressTracking();
+                        }
+                        return;
+                    }
+
+                    // Hide status text during active download
+                    statusText.style.display = 'none';
+                    
+                    // Update progress text - simplified format
+                    if (data.status === 'starting') {
+                        progressText.textContent = 'Starting...';
+                    } else if (data.status === 'processing' || data.status === 'downloading') {
+                        progressText.textContent = `Downloading ${data.current}/${data.total} (${data.progress_percent}%)`;
+                    } else if (data.status === 'completed') {
+                        statusText.textContent = 'Complete';
+                        statusText.style.display = 'block';
+                        stopProgressTracking();
+                    }
+
+                    // Update stats
+                    progressStats.textContent = `Downloaded: ${data.downloaded} | Failed: ${data.failed} | Skipped: ${data.skipped}`;
+                    
+                    // Update current DOI
+                    if (data.current_doi) {
+                        currentDoi.textContent = data.current_doi;
+                        currentDoi.style.display = 'block';
+                    } else {
+                        currentDoi.style.display = 'none';
+                    }
+                    
+                    // Update output folder info
+                    if (data.output_folder) {
+                        outputFolderInfo.textContent = `📁 ${data.output_folder}`;
+                        outputFolderInfo.style.display = 'block';
+                    } else {
+                        outputFolderInfo.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Progress update failed:', error);
+                });
+        }
+
+        // Stop download functionality
+        document.getElementById('stopBtn').addEventListener('click', function() {
+            const stopBtn = document.getElementById('stopBtn');
+            const stopBtnText = document.getElementById('stopBtnText');
+            const stopSpinner = document.getElementById('stopSpinner');
+            
+            // Show loading state
+            stopBtn.classList.add('loading');
+            stopBtnText.textContent = 'Stopping...';
+            stopSpinner.style.display = 'inline-block';
+            
+            fetch('/download/stop', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const statusText = document.getElementById('statusText');
+                    statusText.textContent = 'Stopped';
+                    statusText.style.display = 'block';
+                    stopBtnText.textContent = 'Stopped';
+                    setTimeout(() => {
+                        stopProgressTracking();
+                    }, 1000);
+                } else {
+                    stopBtnText.textContent = 'Failed';
+                    setTimeout(() => {
+                        stopBtnText.textContent = 'Stop';
+                        stopBtn.classList.remove('loading');
+                        stopSpinner.style.display = 'none';
+                    }, 2000);
+                }
+            })
+            .catch(error => {
+                stopBtnText.textContent = 'Error';
+                setTimeout(() => {
+                    stopBtnText.textContent = 'Stop';
+                    stopBtn.classList.remove('loading');
+                    stopSpinner.style.display = 'none';
+                }, 2000);
+            });
+        });
+
+        // Manual file upload and download
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitBtn = document.getElementById('uploadBtn');
+            const btnText = document.getElementById('uploadBtnText');
+            const spinner = document.getElementById('uploadSpinner');
+            const result = document.getElementById('uploadResult');
+            
+            // Show loading state
+            submitBtn.classList.add('loading');
+            btnText.textContent = 'Processing...';
+            spinner.style.display = 'inline-block';
+            result.style.display = 'none';
+            
+            fetch('/download/custom', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                result.style.display = 'block';
+                if (data.success) {
+                    result.className = 'status success';
+                    result.textContent = data.message;
+                    startProgressTracking();
+                } else {
+                    result.className = 'status error';
+                    result.textContent = data.error || 'Download failed';
+                }
+            })
+            .catch(error => {
+                result.style.display = 'block';
+                result.className = 'status error';
+                result.textContent = 'Network error occurred';
+            })
+            .finally(() => {
+                // Reset button state
+                submitBtn.classList.remove('loading');
+                btnText.textContent = 'Download';
+                spinner.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html> 

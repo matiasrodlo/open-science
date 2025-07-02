@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Science Downloader</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Science Downloader</h1>
+        <p>Access 90+ million open access research papers from the CORE database — completely free and legal</p>
+        <p><strong>✅ Now with CORE API integration!</strong> Powered by the world's largest open access aggregator.</p>
+        
+        <div class="workflow-section">
+            <h3>Step 1: Extract DOIs</h3>
+            <div class="nav-buttons">
+                <a href="{{ url_for('main.extract_bibtex') }}" class="btn">Web of Science</a>
+                <a href="{{ url_for('main.extract_scopus') }}" class="btn">Scopus</a>
+                <a href="{{ url_for('main.extract_rayyan') }}" class="btn">Rayyan</a>
+            </div>
+        </div>
+
+        <div class="workflow-section">
+            <h3>Step 2: Download Papers</h3>
+            <div class="nav-buttons">
+                <a href="{{ url_for('download.download_page') }}" class="btn">Download from CORE API — 90M+ papers</a>
+            </div>
+        </div>
+        
+        <div id="status" class="status-message"></div>
+    </div>
+
+    <script>
+        // Check status on page load
+        fetch('/status')
+            .then(response => response.json())
+            .then(data => {
+                const statusDiv = document.getElementById('status');
+                statusDiv.textContent = 'Stand on the shoulders of giants';
+            })
+            .catch(error => {
+                console.error('Status check failed:', error);
+            });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extract DOIs from Scopus BibTeX - Science Downloader</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Extract DOIs From Scopus</h1>
+        <p>Export your papers from Scopus in BibTeX format. This tool extracts DOIs and saves them — one per line — in a plain text file.</p>
+        
+        <form id="extractForm" enctype="multipart/form-data">
+            <label for="file">BibTeX file</label>
+            <input type="file" name="file" id="file" accept=".bib" required>
+            <div class="file-info">Scopus BibTeX (.bib)</div>
+            
+            <label for="output_path">Output file</label>
+                            <input type="text" name="output_path" id="output_path" value="/Users/matiasrodlo/Documents/github/science-downloader/data/extracted_dois.txt" placeholder="~/Desktop/my_dois.txt">
+            <div class="file-info">Complete path with filename required</div>
+            
+            <button type="submit" id="submitBtn">
+                <span id="btnText">Extract DOIs</span>
+                <span id="spinner" class="spinner" style="display: none;"></span>
+            </button>
+        </form>
+        
+        <div id="result" class="status" style="display: none;"></div>
+        
+        <a href="{{ url_for('main.index') }}" class="back-link">← Back to Home</a>
+    </div>
+
+    <script>
+        document.getElementById('extractForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const spinner = document.getElementById('spinner');
+            const result = document.getElementById('result');
+            
+            // Show loading state
+            submitBtn.classList.add('loading');
+            btnText.textContent = 'Processing...';
+            spinner.style.display = 'inline-block';
+            result.style.display = 'none';
+            
+            fetch('/extract-scopus', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                result.style.display = 'block';
+                if (data.success) {
+                    result.className = 'status success';
+                    result.textContent = data.message;
+                } else {
+                    result.className = 'status error';
+                    result.textContent = data.error || 'Extraction failed';
+                }
+            })
+            .catch(error => {
+                result.style.display = 'block';
+                result.className = 'status error';
+                result.textContent = 'Network error occurred';
+            })
+            .finally(() => {
+                // Reset button state
+                submitBtn.classList.remove('loading');
+                btnText.textContent = 'Extract DOIs';
+                spinner.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html> 
