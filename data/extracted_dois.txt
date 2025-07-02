@@ -1,0 +1,3 @@
+# Extracted DOIs from research databases (Web of Science, Scopus, Rayyan)
+# Each line contains one DOI that was extracted from uploaded files
+# Format: One DOI per line (e.g., 10.1016/j.jretconser.2021.102727)

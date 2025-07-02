@@ -1,0 +1,3 @@
+# Stop download flag - when this file exists, the download process will stop
+# Delete this file to allow downloads to continue
+# This file is used to gracefully stop ongoing download sessions

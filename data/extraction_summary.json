@@ -1,0 +1,15 @@
+{
+  "source_format": "BibTeX",
+  "total_found": 983,
+  "unique_count": 983,
+  "duplicates_removed": 0,
+  "total_errors": 5,
+  "success": true,
+  "errors": [
+    "Invalid DOI format: 10.1162/tacl\\_a\\_00300",
+    "Invalid DOI format: 10.1162/tacl\\_a\\_00343",
+    "Invalid DOI format: 10.1162/tacl\\_a\\_00290",
+    "Invalid DOI format: 10.1162/tacl\\_a\\_00288",
+    "Invalid DOI format: 10.1162/qss\\_a\\_00021"
+  ]
+}

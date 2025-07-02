@@ -1,0 +1,3 @@
+# Research library - master list of all DOIs in your research collection
+# Each line contains one DOI from your research papers library
+# This file serves as the main reference for your research paper collection

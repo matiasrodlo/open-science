@@ -1,0 +1,17 @@
+# Test DOI file for arXiv integration
+# These DOIs might be available on arXiv when CORE fails
+
+# Known arXiv papers
+10.48550/arXiv.2301.07041
+10.48550/arXiv.2106.09685
+10.48550/arXiv.2203.11171
+
+# Computer Science papers that might be on arXiv  
+10.1145/3580305.3599256
+10.1145/3578503.3583624
+10.1109/ICCV48922.2021.01394
+
+# AI/ML papers that might be on arXiv
+10.1007/s10994-021-06120-9
+10.1016/j.artint.2023.103865
+10.1609/aaai.v37i1.25070 
