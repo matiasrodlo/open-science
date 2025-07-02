@@ -1,4 +1,4 @@
-# Science Downloader
+# Open Science Downloader
 
 Download research articles and books in bulk — completely free and legally compliant.
 
