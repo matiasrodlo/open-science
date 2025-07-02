@@ -2,13 +2,7 @@
 
 Download research articles and books in bulk — completely free and legally compliant.
 
-**Now with CORE API integration!** Access 90+ million open access research papers from thousands of repositories worldwide. Install in just 3 clicks. Effortlessly extract DOIs from Web of Science, Scopus, and Rayyan, then automatically retrieve thousands — or even millions — of open-access academic papers and documents via a clean, user-friendly interface.
-
-**✅ Fully Functional Downloads** - Powered by the CORE API (COnnecting REpositories)
-**✅ 90+ Million Papers** - Largest open access aggregator worldwide  
-**✅ 100% Legal** - Only open access content with proper licensing
-**✅ Real-time Progress** - Live download tracking and statistics
-**✅ Smart Deduplication** - Skips already downloaded papers automatically
+Access 90+ million open access research papers from thousands of repositories worldwide. Install in just 3 clicks. Effortlessly extract DOIs from Web of Science, Scopus, and Rayyan, then automatically retrieve thousands — or even millions — of open-access academic papers and documents via a clean, user-friendly interface.
 
 [![Science Downloader Interface](https://github.com/user-attachments/assets/7349d1e2-0b3e-4dca-9abf-9966113abb57)](https://github.com/matiasrodlo/science-downloader?tab=readme-ov-file#installation)
 
